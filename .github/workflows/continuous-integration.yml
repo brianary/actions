@@ -18,8 +18,8 @@ jobs:
       - name: 🆔 Determine project type
         id: detect
         run: |
-          if(Test-Path src/public/*.ps1) {"job=script-module-test" |Add-Content $env:GITHUB_OUTPUT utf8NoBOM}
-          elseif(Test-Path src/*proj) {"job=binary-module-test" |Add-Content $env:GITHUB_OUTPUT utf8NoBOM}
+          if(Test-Path src/public/*.ps1) {"job=script-module-test" |Out-File -Path $env:GITHUB_OUTPUT -Encoding utf8NoBOM -Append}
+          elseif(Test-Path src/*proj) {"job=binary-module-test" |Out-File -Path $env:GITHUB_OUTPUT -Encoding utf8NoBOM -Append}
           else {"job=unknown" |Add-Content $env:GITHUB_OUTPUT utf8NoBOM}
   script-module-test:
     name: 🧪 Test on ${{ matrix.os }}
