@@ -11,11 +11,12 @@ jobs:
     name: 🟢 Initialize
     runs-on: ubuntu-latest
     outputs:
-      job: ${{ steps }}
+      job: ${{ steps.detect.outputs.job }}
     steps:
       - name: 📥 Check out script source
         uses: actions/checkout@v6
       - name: 🆔 Determine project type
+        id: detect
         run: |
           if(Test-Path src/public/*.ps1) {"job=script-module-test" >> $GITHUB_OUTPUT}
           elseif(Test-Path src/*proj) {"job=binary-module-test" >> $GITHUB_OUTPUT}
