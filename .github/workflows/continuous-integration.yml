@@ -1,10 +1,5 @@
 ﻿name: 🩺 Continuous integration
 description: Build and test
-author: brianary
-# https://haya14busa.github.io/github-action-brandings/
-branding:
-  icon: check-circle
-  color: blue
 on: workflow_call
 defaults:
   run:
@@ -12,9 +7,22 @@ defaults:
 permissions:
   contents: read
 jobs:
+  init:
+    name: 🟢 Initialize
+    runs-on: ubuntu-latest
+    outputs:
+      job: ${{ steps }}
+    steps:
+      - name: 📥 Check out script source
+        uses: actions/checkout@v6
+      - name: 🆔 Determine project type
+        run: |
+          if(Test-Path src/public/*.ps1) {"job=script-module-test" >> $GITHUB_OUTPUT}
+          elseif(Test-Path src/*proj) {"job=binary-module-test" >> $GITHUB_OUTPUT}
   script-module-test:
     name: 🧪 Test on ${{ matrix.os }}
-    if: ${{ hashFiles('/src/public/*.ps1') }}
+    needs: init
+    if: needs.init.outputs.job == 'script-module-test'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -42,7 +50,8 @@ jobs:
           path: ./testResults.xml
   binary-module-test:
     name: 🧪 Test build on ${{ matrix.os }}
-    if: ${{ hashFiles('/src/*/*proj') }}
+    needs: init
+    if: needs.init.outputs.job == 'binary-module-test'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

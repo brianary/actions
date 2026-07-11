@@ -21,5 +21,5 @@ on:
 
 jobs:
   call-workflow:
-    uses: brianary/actions/continuous-integration.yml@main
+    uses: brianary/actions/.github/workflows/continuous-integration.yml@main
 ```
