@@ -1,0 +1,25 @@
+﻿Reusable actions
+================
+
+Actions for repositories using some specific conventions.
+
+Continuous integration
+----------------------
+
+```yaml
+name: 🩺 Continuous integration ⏩
+
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/**','src/**','test/**']
+  pull_request:
+    types: [opened, reopened]
+    branches: [main]
+    paths: ['scripts/**','src/**','test/**']
+  workflow_dispatch: {}
+
+jobs:
+  call-workflow:
+    uses: brianary/actions/continuous-integration.yml@main
+```
