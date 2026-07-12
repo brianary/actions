@@ -9,24 +9,8 @@ permissions:
   security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
   actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
 jobs:
-  init:
-    name: 🟢 Initialize
-    runs-on: ubuntu-latest
-    outputs:
-      job: ${{ steps.detect.outputs.job }}
-    steps:
-      - name: 📥 Check out script source
-        uses: actions/checkout@v6
-      - name: 🆔 Determine project type
-        id: detect
-        run: |
-          if(Test-Path src/public/*.ps1) {"job=script-module-test" |Out-File -Path $env:GITHUB_OUTPUT -Encoding utf8NoBOM -Append}
-          elseif(Test-Path src/*proj) {"job=binary-module-test" |Out-File -Path $env:GITHUB_OUTPUT -Encoding utf8NoBOM -Append}
-          else {"job=unknown" |Add-Content $env:GITHUB_OUTPUT utf8NoBOM}
-  script-module-test:
+  test:
     name: 🧪 Test on ${{ matrix.os }}
-    needs: init
-    if: needs.init.outputs.job == 'script-module-test'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -34,40 +18,28 @@ jobs:
     steps:
       - name: 📥 Check out script source
         uses: actions/checkout@v6
-      - name: 🏭 Build module
+      - name: 🏗️ Setup .NET
+        if: hashFiles('/*.slnx')
+        uses: actions/setup-dotnet@v5.4.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: 🏭 Build module .dll
+        if: hashFiles('/*.slnx')
+        run: dotnet publish
+      - name: 🏭 Build module .psm1
+        if: hashFiles('/scripts/Build-ThisModule.ps1')
         run: ./scripts/Build-ThisModule.ps1
       - name: 🔬 Analyze module style
         uses: microsoft/psscriptanalyzer-action@v1.0
+        if: hashFiles('/src/public/*.ps1')
         with:
           settings: PSGallery
           output: analysis.sarif
       - name: ⚗️ Test module
+        if: hashFiles('/test/*.Tests.ps1','/*.Tests.ps1')
         run: Invoke-Pester -Configuration @{TestResult=@{Enabled=$true}}
       - name: 📤 Upload test results
-        uses: actions/upload-artifact@v7
-        with:
-          name: Pester test results for ${{ matrix.os }}
-          path: ./testResults.xml
-  binary-module-test:
-    name: 🧪 Test build on ${{ matrix.os }}
-    needs: init
-    if: needs.init.outputs.job == 'binary-module-test'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-      - name: 📥 Check out source
-        uses: actions/checkout@v6
-      - name: 🏗️ Setup .NET
-        uses: actions/setup-dotnet@v5.4.0
-        with:
-          dotnet-version: '10.0.x'
-      - name: 🏭 Build module
-        run: dotnet publish
-      - name: ⚗️ Test module
-        run: Invoke-Pester -Configuration @{TestResult=@{Enabled=$true}}
-      - name: 📤 Upload test results
+        if: hashFiles('/test/*.Tests.ps1','/*.Tests.ps1')
         uses: actions/upload-artifact@v7
         with:
           name: Pester test results for ${{ matrix.os }}
