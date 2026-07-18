@@ -69,6 +69,12 @@ jobs:
           release_name: Release ${{ inputs.version }}
           draft: false
           prerelease: false
+      - name: 🧭 Locate .nupkg file
+        id: nupkg
+        if: ${{ hashFiles('*.nupkg') }}
+        run: |
+          "file=$(Resolve-Path *.nupkg -Relative |Split-Path -Leaf)" |
+            Out-File "$env:GITHUB_OUTPUT" -Encoding utf8NoBOM -Append
       - name: 📎 Add module .nupkg to release
         if: ${{ hashFiles('*.nupkg') }}
         uses: actions/upload-release-asset@v1
@@ -76,8 +82,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.gh_token }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ${{ format('{0}.nupkg', github.event.repository.name) }}
-          asset_name: ${{ format('{0}.nupkg', github.event.repository.name) }}
+          asset_path: ${{ steps.nupkg.outputs.file }}
+          asset_name: ${{ steps.nupkg.outputs.file }}
           asset_content_type: application/octet-stream
       - name: 📝 Generate wiki pages
         if: ${{ hashFiles('scripts/Write-Wiki.ps1') != '' }}
