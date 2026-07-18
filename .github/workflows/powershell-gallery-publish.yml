@@ -40,7 +40,7 @@ jobs:
             MODULEVERSION: ${{ inputs.version }}
         run: |
           $psd1 = "$(Resolve-Path src/bin/*/net*/publish/*.psd1)"
-          Update-ModuleManifest $psd1 -ModuleVersion ($env:MODULEVERSION -replace '\Av')
+          Update-ModuleManifest $psd1 -ModuleVersion ($env:MODULEVERSION -replace '\A(\w+/)*v')
           # see bug https://github.com/PowerShell/PSResourceGet/issues/1806#issuecomment-2992975199
           Get-PSResourceRepository -Name PSGallery
           Publish-PSResource -Path $psd1 -NuGetApiKey $env:GALLERYKEY
