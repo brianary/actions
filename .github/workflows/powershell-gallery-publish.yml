@@ -11,7 +11,7 @@ on:
       gallerykey:
         required: true
         description: The API key used to publish this module to the PowerShell Gallery.
-      token:
+      gh_token:
         required: true
         description: The GitHub token to use for repo updates.
 defaults:
@@ -60,7 +60,7 @@ jobs:
       - name: 🏷️ Create release
         uses: actions/create-release@v1.1.4
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          GITHUB_TOKEN: ${{ secrets.gh_token }}
         with:
           tag_name: ${{ inputs.version }}
           release_name: Release ${{ inputs.version }}
