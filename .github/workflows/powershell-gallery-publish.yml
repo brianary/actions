@@ -11,6 +11,9 @@ on:
       gallerykey:
         required: true
         description: The API key used to publish this module to the PowerShell Gallery.
+      token:
+        required: true
+        description: The GitHub token to use for repo updates.
 defaults:
   run:
     shell: pwsh
