@@ -41,7 +41,7 @@ on:
       - v[0-9]*
 
 permissions:
-  contents: read
+  contents: write
   security-events: write
   actions: read
 
