@@ -7,6 +7,10 @@ on:
         type: string
         required: true
         description: The new version number to publish this module as.
+    secrets:
+      gallerykey:
+        required: true
+        description: The API key used to publish this module to the PowerShell Gallery.
 defaults:
   run:
     shell: pwsh
