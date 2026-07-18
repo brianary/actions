@@ -7,10 +7,6 @@ on:
         type: string
         required: true
         description: The new version number to publish this module as.
-      gallerykey:
-        type: string
-        required: true
-        description: The API key used to publish this module to the PowerShell Gallery.
 defaults:
   run:
     shell: pwsh
@@ -40,7 +36,7 @@ jobs:
       - name: 📤 Publish binary module
         if: ${{ hashFiles('*.slnx') != '' }}
         env:
-            GALLERYKEY: ${{ inputs.gallerykey }}
+            GALLERYKEY: ${{ secrets.gallerykey }}
             MODULEVERSION: ${{ inputs.version }}
         run: |
           $psd1 = "$(Resolve-Path src/bin/*/net*/publish/*.psd1)"
@@ -51,7 +47,7 @@ jobs:
       - name: 📤 Publish script module
         if: ${{ hashFiles('scripts/Publish-ThisModule.ps1') != '' }}
         env:
-            GALLERYKEY: ${{ inputs.gallerykey }}
+            GALLERYKEY: ${{ secrets.gallerykey }}
             MODULEVERSION: ${{ inputs.version }}
         run: ./scripts/Publish-ThisModule.ps1
       - name: 🏷️ Create release

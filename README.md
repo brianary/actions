@@ -50,5 +50,4 @@ jobs:
     uses: brianary/actions/.github/workflows/powershell-gallery-publish.yml@main
     with:
         version: ${{ github.ref }}
-        gallerykey: ${{ secrets.gallerykey }}
 ```
