@@ -41,6 +41,7 @@ jobs:
         if: ${{ hashFiles('scripts/Build-ThisModule.ps1') != '' }}
         run: ./scripts/Build-ThisModule.ps1
       - name: 📤 Publish binary module
+        id: pubdll
         if: ${{ hashFiles('*.slnx') != '' }}
         env:
             GALLERYKEY: ${{ secrets.gallerykey }}
@@ -50,14 +51,16 @@ jobs:
           Update-ModuleManifest $psd1 -ModuleVersion ($env:MODULEVERSION -replace '\A(\w+/)*v')
           # see bug https://github.com/PowerShell/PSResourceGet/issues/1806#issuecomment-2992975199
           Get-PSResourceRepository -Name PSGallery
-          Publish-PSResource -Path $psd1 -ApiKey $env:GALLERYKEY
+          Publish-PSResource -Path $psd1 -ApiKey $env:GALLERYKEY -Destination .
       - name: 📤 Publish script module
+        id: pubpsm1
         if: ${{ hashFiles('scripts/Publish-ThisModule.ps1') != '' }}
         env:
             GALLERYKEY: ${{ secrets.gallerykey }}
             MODULEVERSION: ${{ inputs.version }}
         run: ./scripts/Publish-ThisModule.ps1
       - name: 🏷️ Create release
+        id: release
         uses: actions/create-release@v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.gh_token }}
@@ -66,6 +69,16 @@ jobs:
           release_name: Release ${{ inputs.version }}
           draft: false
           prerelease: false
+      - name: 📎 Add module .nupkg to release
+        if: ${{ hashFiles('*.nupkg') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.gh_token }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ${{ format('{0}.nupkg', github.event.repository.name) }}
+          asset_name: ${{ format('{0}.nupkg', github.event.repository.name) }}
+          asset_content_type: application/octet-stream
       - name: 📝 Generate wiki pages
         if: ${{ hashFiles('scripts/Write-Wiki.ps1') != '' }}
         run: ./scripts/Write-Wiki.ps1
