@@ -47,7 +47,7 @@ permissions:
 
 jobs:
   call-workflow:
-    uses: brianary/actions/.github/workflows/continuous-integration.yml@main
+    uses: brianary/actions/.github/workflows/powershell-gallery-publish.yml@main
     with:
         version: ${{ github.ref }}
         gallerykey: ${{ secrets.gallerykey }}
