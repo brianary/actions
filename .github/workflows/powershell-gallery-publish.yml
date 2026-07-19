@@ -40,6 +40,17 @@ jobs:
       - name: 🏭 Build module .psm1
         if: ${{ hashFiles('scripts/Build-ThisModule.ps1') != '' }}
         run: ./scripts/Build-ThisModule.ps1
+      - name: 📝 Generate script wiki pages
+        if: ${{ hashFiles('scripts/Write-Wiki.ps1') != '' }}
+        run: ./scripts/Write-Wiki.ps1
+      - name: 📝 Generate binary wiki pages
+        if: ${{ hashFiles('*.slnx') != '' }}
+        run: |
+          $psd1 = "$(Resolve-Path src/bin/*/net*/publish/*.psd1)"
+          Import-Module $psd1
+          New-MarkdownHelp -Module (Split-Path $psd1 -LeafBase) -OutputFolder .github/wiki -EA Ignore
+          Update-MarkdownHelp .github/wiki
+          New-ExternalHelp .github/wiki -OutputPath (Split-Path $psd1) -Force
       - name: 📤 Publish binary module
         id: pubdll
         if: ${{ hashFiles('*.slnx') != '' }}
@@ -85,9 +96,6 @@ jobs:
           asset_path: ${{ steps.nupkg.outputs.file }}
           asset_name: ${{ steps.nupkg.outputs.file }}
           asset_content_type: application/octet-stream
-      - name: 📝 Generate wiki pages
-        if: ${{ hashFiles('scripts/Write-Wiki.ps1') != '' }}
-        run: ./scripts/Write-Wiki.ps1
       - name: 📮 Publish wiki
-        if: ${{ hashFiles('scripts/Write-Wiki.ps1') != '' }}
+        if: ${{ hashFiles('.github/wiki/*.md') != '' }}
         uses: spenserblack/actions-wiki@v0.3.0
