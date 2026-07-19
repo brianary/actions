@@ -46,6 +46,8 @@ jobs:
       - name: 📝 Generate binary wiki pages
         if: ${{ hashFiles('*.slnx') != '' }}
         run: |
+          if(!(Get-Module platyPS -ListAvailable -EA Ignore)) {Install-PSResource platyPS -Repository PSGallery -TrustRepository}
+          Import-Module platyPS
           $psd1 = "$(Resolve-Path src/bin/*/net*/publish/*.psd1)"
           Import-Module $psd1
           New-MarkdownHelp -Module (Split-Path $psd1 -LeafBase) -OutputFolder .github/wiki -EA Ignore
