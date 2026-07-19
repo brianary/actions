@@ -36,7 +36,7 @@ jobs:
           dotnet-version: '10.0.x'
       - name: 🏭 Build module .dll
         if: ${{ hashFiles('*.slnx') != '' }}
-        run: dotnet publish
+        run: dotnet publish /p:Version=${{ inputs.version }}
       - name: 🏭 Build module .psm1
         if: ${{ hashFiles('scripts/Build-ThisModule.ps1') != '' }}
         run: ./scripts/Build-ThisModule.ps1
