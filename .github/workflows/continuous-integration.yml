@@ -1,6 +1,13 @@
 ﻿name: 🩺 Continuous integration
 description: Build and test
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      windows-only:
+        type: boolean
+        description: Indicates a module that is intended to run on Windows operating systems only.
+        default: false
+        required: false
 defaults:
   run:
     shell: pwsh
